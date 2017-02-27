@@ -1,17 +1,13 @@
 #!/bin/sh
 
-if [ $# -ne 2 ]
+if [ $# -ne 1 ]
 then
-    echo "Usage: $0 <domain> <wandev>"
+    echo "Usage: $0 <domain>"
     exit 1
 fi
 
 DOMAIN=$1
-WAN=$2
 
 ACMEHOME=/config/.acme.sh
-WANIP=$(ip addr show $WAN | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
 
-/sbin/iptables -I INPUT 1 -p tcp -m comment --comment TEMP_LETSENCRYPT -m tcp --dport 80 -j ACCEPT
-$ACMEHOME/acme.sh --issue -d $DOMAIN --standalone --home $ACMEHOME --local-address $WANIP --keypath /tmp/server.key --fullchainpath /tmp/full.cer --reloadcmd /config/scripts/reload.acme.sh
-/sbin/iptables -D INPUT 1
+$ACMEHOME/acme.sh --issue -d $DOMAIN --dns --home $ACMEHOME --keypath /tmp/server.key --fullchainpath /tmp/full.cer --reloadcmd /config/scripts/reload.acme.sh
